@@ -83,6 +83,8 @@ document.getElementById("legende").innerHTML = SITUATIONS
 const fond = document.getElementById("fond");
 for (const [z, g] of Object.entries(ZONES)) el("path", { d: g.d, class: "zone", id: "zone-" + z }, fond);
 
+el("path", { d: DEPARTEMENTS, class: "deps" }, document.getElementById("departements"));
+
 const selecteur = document.getElementById("indicateur");
 selecteur.innerHTML = Object.entries(INDICATEURS).map(([k, i]) => `<option value="${k}">${i.menu}</option>`).join("");
 selecteur.value = INDICATEUR_ACTIF;
