@@ -10,9 +10,29 @@ Version actuelle : **1.0.0**
 
 ![Capture d'écran de l'outil](docs/preview1.0.0.png)
 
-## TODO
+## Structure du dépôt
 
-séparer l'index.html en plusieurs fichiers disctincts (CSV pour les infos...)
+| Fichier | Rôle |
+| --- | --- |
+| `index.html` | structure de la page |
+| `styles.css` | styles (thèmes clair / sombre) |
+| `js/config.js` | réglages : indicateurs, indicateur de départ, gabarits de dessin |
+| `js/utils.js` | formats de nombres, échappement HTML, création d'éléments SVG |
+| `js/script.js` | dessin de la carte, du panneau et du tableau |
+| `js/zones.js`, `js/departements.js` | contours des 8 zones et des départements |
+| `js/data.js` | **généré** — ne pas modifier à la main |
+| `data/` | sources : `comparaison_meteo.csv`, `stations.json` (positions), `situations.json` |
+| `build/build_data.py` | régénère `js/data.js` à partir de `data/` |
+
+## Mettre à jour les données
+
+Modifier `data/comparaison_meteo.csv` (une ligne par station et par situation), puis, depuis la racine :
+
+```
+python3 build/build_data.py
+```
+
+Pour ajouter un indicateur : ajouter la colonne au CSV, puis une entrée dans `INDICATEURS` (`js/config.js`).
 
 ## Licence et crédits
 

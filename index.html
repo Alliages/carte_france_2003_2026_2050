@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chaleur d’été 2003 2050 par villes</title>
+<meta name="description" content="Carte interactive : nuits chaudes, heures > 28 °C et degrés-heures dans les 8 villes de référence des zones RE2020, en 2003, 2026 et 2050 (scénarios TRACC).">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Chaleur d’été 2003 · 2026 · 2050 par villes">
+<meta property="og:description" content="8 villes, 8 zones RE2020 : l’été 2026 observé comparé à la canicule réglementaire 2003 et aux scénarios TRACC 2050.">
+<meta property="og:url" content="https://alliages.github.io/carte_france_2003_2026_2050/">
+<meta property="og:image" content="https://alliages.github.io/carte_france_2003_2026_2050/docs/preview1.0.0.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" type="image/png" href="img/favicon-96x96.png" sizes="96x96" />
 <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
@@ -46,10 +53,10 @@
     </aside>
   </div>
 
-  <div style="overflow-x:auto"><table id="tableau" aria-label="Valeurs par station"></table></div>
+  <div class="tableau-wrap"><table id="tableau" aria-label="Valeurs par station"></table></div>
 
   <p class="sources">
-    Données : <em>comparaison_meteo.csv</em> — fichier météo Th-D canicule de la RE2020 (2003), observations de l'été 2026 aux stations,
+    Données : <a href="data/comparaison_meteo.csv" download>comparaison_meteo.csv</a> — fichier météo Th-D canicule de la RE2020 (2003), observations de l'été 2026 aux stations,
     scénarios TRACC +2,7 °C à l'horizon 2050 (moyen et vague de chaleur). Stations de référence : note technique Météo-France / ADEME 2025.
     Fond : IGN Admin Express via france-geojson (Licence Ouverte). Mise en forme dérivée de
     <a href="https://github.com/Alliages/zones-climatiques-re2020">zones-climatiques-re2020</a>.
@@ -59,6 +66,8 @@
     <a href="https://github.com/Alliages/carte_france_2003_2026_2050">code source sur GitHub</a>
   </footer>
 </main>
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
 <script src="js/zones.js"></script>
 <script src="js/departements.js"></script>
 <script src="js/data.js"></script>

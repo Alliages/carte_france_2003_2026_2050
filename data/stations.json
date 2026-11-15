@@ -1,0 +1,66 @@
+[
+  {
+    "zone": "H1a",
+    "station": "Trappes",
+    "x": 310.9,
+    "y": 153.7,
+    "gx": 318,
+    "gy": 128
+  },
+  {
+    "zone": "H1b",
+    "station": "Nancy",
+    "x": 486.7,
+    "y": 158.8,
+    "gx": 505,
+    "gy": 138
+  },
+  {
+    "zone": "H1c",
+    "station": "Mâcon",
+    "x": 427.1,
+    "y": 303.2,
+    "gx": 522,
+    "gy": 300
+  },
+  {
+    "zone": "H2a",
+    "station": "Rennes",
+    "x": 154.6,
+    "y": 196.2,
+    "gx": 95,
+    "gy": 202
+  },
+  {
+    "zone": "H2b",
+    "station": "Tours",
+    "x": 257.5,
+    "y": 233.8,
+    "gx": 228,
+    "gy": 322
+  },
+  {
+    "zone": "H2c",
+    "station": "Agen",
+    "x": 251.8,
+    "y": 431.0,
+    "gx": 196,
+    "gy": 448
+  },
+  {
+    "zone": "H2d",
+    "station": "Carpentras",
+    "x": 438.1,
+    "y": 436.6,
+    "gx": 545,
+    "gy": 440
+  },
+  {
+    "zone": "H3",
+    "station": "Marignane",
+    "x": 444.7,
+    "y": 475.6,
+    "gx": 420,
+    "gy": 642
+  }
+]
