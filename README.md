@@ -34,6 +34,10 @@ python3 build/build_data.py
 
 Pour ajouter un indicateur : ajouter la colonne au CSV, puis une entrée dans `INDICATEURS` (`js/config.js`).
 
+## TODO
+
+rajouter des indicateurs et permettre l'export
+
 ## Licence et crédits
 
 GNU GPL v3
