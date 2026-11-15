@@ -1,60 +1,12 @@
-// Indicateurs proposés dans le sélecteur (clé = nom de colonne du CSV).
-// Pour en ajouter un : compléter cet objet, rien d'autre à modifier.
-const INDICATEURS = {
-  nuits_20: {
-    menu: "Nuits ≥ 20 °C",
-    titre: "Nuits où la température reste ≥ 20 °C",
-    sousTitre: "Nombre de nuits de l'été où la température ne descend pas sous 20 °C",
-    unite: "nuits", observe: "observées",
-  },
-  nuits_24: {
-    menu: "Nuits ≥ 24 °C",
-    titre: "Nuits où la température reste ≥ 24 °C",
-    sousTitre: "Nombre de nuits de l'été où la température ne descend pas sous 24 °C",
-    unite: "nuits", observe: "observées",
-  },
-  heures_chaudes: {
-    menu: "Heures > 28 °C",
-    titre: "Heures où la température dépasse 28 °C",
-    sousTitre: "Nombre d'heures de l'été où la température extérieure dépasse 28 °C",
-    unite: "heures", observe: "observées",
-  },
-  dh: {
-    menu: "Degrés-heures (DH)",
-    titre: "Degrés-heures (°C·h)",
-    sousTitre: "Degrés-heures (DH) cumulés sur l'été",
-    unite: "DH", observe: "observés",
-  },
-};
-const SOUS_TITRE_FIN = ", à la station de référence de chaque zone. Comparaison du fichier canicule réglementaire (2003), "
-                     + "de l'été observé en 2026 et des deux scénarios TRACC 2050.";
-let   INDICATEUR_ACTIF = "nuits_20";   // indicateur affiché à l'ouverture
-const STATION_DEPART   = null;         // null = vue d'ensemble à l'ouverture (aucune sélection)
-const REFERENCE        = "2003";       // situation de référence pour les écarts
+// Dessin de la carte, du panneau et du tableau. Réglages : config.js ; utilitaires : utils.js ; données : data.js.
 
-// Gabarit du glyphe sur la carte (px du viewBox)
-const BARRE_L = 19, BARRE_ESP = 4, CARTE_PAD = 6, H_MAX_CARTE = 100, H_VALEURS = 15;
-// Gabarit du graphique de détail
-const G = { x0: 40, x1: 352, yBas: 250, yHaut: 46, colL: 46 };
-// Gabarit de la vue d'ensemble (une ligne par station, 4 barres horizontales)
-const E = { xBarres: 92, xMax: 316, barreH: 10, barreEsp: 3, ligneEsp: 12, yDebut: 30 };
-
-const SVG_NS = "http://www.w3.org/2000/svg";
+/* ---------- état ---------- */
 let zoneActive = null;     // zone sélectionnée (null = vue d'ensemble)
 let maxNational = 0;       // maximum de l'indicateur actif, toutes stations et situations
 
-/* ---------- accès aux valeurs et mise en forme ---------- */
+/* ---------- accès aux valeurs ---------- */
 const ind = () => INDICATEURS[INDICATEUR_ACTIF];
 const valeur = (st, cle) => st.valeurs[cle][INDICATEUR_ACTIF];
-const fmt = v => Math.round(v).toLocaleString("fr-FR");
-const fmtEcart = v => (v > 0 ? "+" : v < 0 ? "−" : "±") + fmt(Math.abs(v));
-// format court pour les étiquettes du glyphe (1 234 → « 1,2k »)
-const fmtCourt = v => v >= 1000 ? (v / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + "k" : fmt(v);
-// pas « rond » pour les graduations (1, 2, 2,5 ou 5 × 10^n)
-function pasRond(max, nb = 4) {
-  const brut = max / nb, mag = 10 ** Math.floor(Math.log10(brut));
-  return [1, 2, 2.5, 5, 10].map(m => m * mag).find(p => p >= brut);
-}
 // stations où 2026 observé dépasse le scénario TRACC 2050 moyen
 function comptage() {
   const sup = STATIONS.filter(st => valeur(st, "2026") > valeur(st, "2050"));
@@ -63,22 +15,9 @@ function comptage() {
   return { sup, egal, inf };
 }
 
-/* ---------- petit utilitaire de création d'éléments SVG ---------- */
-function el(nom, attrs = {}, parent, texte) {
-  const e = document.createElementNS(SVG_NS, nom);
-  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
-  if (texte !== undefined) e.textContent = texte;
-  if (parent) parent.appendChild(e);
-  return e;
-}
-function activer(e, action) {   // clic + clavier (Entrée / Espace)
-  e.addEventListener("click", action);
-  e.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); action(); } });
-}
-
 /* ---------- éléments fixes : légende, fond de carte, sélecteur ---------- */
 document.getElementById("legende").innerHTML = SITUATIONS
-  .map(s => `<span><i style="background:${s.couleur}"></i>${s.annee} · ${s.libelle}</span>`).join("");
+  .map(s => `<span><i style="background:${s.couleur}"></i>${esc(s.annee)} · ${esc(s.libelle)}</span>`).join("");
 
 const fond = document.getElementById("fond");
 for (const [z, g] of Object.entries(ZONES)) el("path", { d: g.d, class: "zone", id: "zone-" + z }, fond);
@@ -86,7 +25,7 @@ for (const [z, g] of Object.entries(ZONES)) el("path", { d: g.d, class: "zone", 
 el("path", { d: DEPARTEMENTS, class: "deps" }, document.getElementById("departements"));
 
 const selecteur = document.getElementById("indicateur");
-selecteur.innerHTML = Object.entries(INDICATEURS).map(([k, i]) => `<option value="${k}">${i.menu}</option>`).join("");
+selecteur.innerHTML = Object.entries(INDICATEURS).map(([k, i]) => `<option value="${esc(k)}">${esc(i.menu)}</option>`).join("");
 selecteur.value = INDICATEUR_ACTIF;
 selecteur.addEventListener("change", () => { INDICATEUR_ACTIF = selecteur.value; toutDessiner(); });
 
@@ -138,17 +77,17 @@ function dessinerGlyphes() {
 const tableau = document.getElementById("tableau");
 function dessinerTableau() {
   tableau.innerHTML = "<thead><tr><th>Zone</th><th>Station</th>"
-    + SITUATIONS.map(s => `<th><i style="background:${s.couleur}"></i>${s.annee} ${s.libelle}</th>`).join("")
+    + SITUATIONS.map(s => `<th><i style="background:${esc(s.couleur)}"></i>${esc(s.annee)} ${esc(s.libelle)}</th>`).join("")
     + "</tr></thead><tbody>"
-    + STATIONS.map(st => `<tr data-zone="${st.zone}"><td>${st.zone}</td><td>${st.station}</td>`
+    + STATIONS.map(st => `<tr data-zone="${esc(st.zone)}" tabindex="0"><td>${esc(st.zone)}</td><td>${esc(st.station)}</td>`
         + SITUATIONS.map(s => {
             // 2026 en gras quand il dépasse le TRACC 2050 moyen
             const fort = s.cle === "2026" && valeur(st, "2026") > valeur(st, "2050");
             return `<td${fort ? ' class="fort"' : ""}>${fmt(valeur(st, s.cle))}</td>`;
           }).join("") + "</tr>").join("")
     + "</tbody>";
-  tableau.querySelectorAll("tbody tr").forEach(tr => tr.addEventListener("click",
-    () => choisir(zoneActive === tr.dataset.zone ? null : tr.dataset.zone)));
+  tableau.querySelectorAll("tbody tr").forEach(tr =>
+    activer(tr, () => choisir(zoneActive === tr.dataset.zone ? null : tr.dataset.zone)));
 }
 
 /* ---------- panneau : graphique de détail d'une station ---------- */
@@ -156,8 +95,9 @@ function dessinerGraphe(st) {
   const svg = document.getElementById("p-graphe");
   svg.innerHTML = "";
   svg.setAttribute("viewBox", "0 0 360 300");
+  svg.setAttribute("role", "img");
   el("title", {}, svg, `${ind().titre} à ${st.station}`);
-  el("text", { x: 0, y: 14, style: "font-size:13px;fill:var(--texte-2)" }, svg, ind().titre);
+  el("text", { x: 0, y: 14, class: "titre-graphe" }, svg, ind().titre);
 
   const pas = pasRond(maxNational), haut = Math.ceil(maxNational / pas) * pas;
   const y = v => G.yBas - v / haut * (G.yBas - G.yHaut);
@@ -200,8 +140,9 @@ function dessinerEnsemble() {
   const hLigne = SITUATIONS.length * (E.barreH + E.barreEsp) - E.barreEsp;
   const hTotal = E.yDebut + STATIONS.length * (hLigne + E.ligneEsp) + 4;
   svg.setAttribute("viewBox", `0 0 360 ${hTotal}`);
+  svg.setAttribute("role", "group");   // contient des boutons : pas role="img"
   el("title", {}, svg, `${ind().titre}, 8 stations`);
-  el("text", { x: 0, y: 14, style: "font-size:13px;fill:var(--texte-2)" }, svg, ind().titre);
+  el("text", { x: 0, y: 14, class: "titre-graphe" }, svg, ind().titre);
   const x = v => E.xBarres + v / maxNational * (E.xMax - E.xBarres);
 
   STATIONS.forEach((st, i) => {
@@ -213,7 +154,7 @@ function dessinerEnsemble() {
     SITUATIONS.forEach((s, j) => {
       const v = valeur(st, s.cle), yb = y0 + j * (E.barreH + E.barreEsp);
       el("rect", { x: E.xBarres, y: yb, width: Math.max(x(v) - E.xBarres, 1), height: E.barreH, rx: 2, fill: s.couleur }, g);
-      el("text", { x: x(v) + 4, y: yb + E.barreH - 1, class: "axe", style: "fill:var(--texte-2)" }, g, fmt(v));
+      el("text", { x: x(v) + 4, y: yb + E.barreH - 1, class: "axe val-ens" }, g, fmt(v));
     });
     activer(g, () => choisir(st.zone));
   });
@@ -221,7 +162,7 @@ function dessinerEnsemble() {
 
 function phraseEnsemble() {
   const { sup, egal, inf } = comptage();
-  const noms = l => l.map(st => st.station).join(", ");
+  const noms = l => l.map(st => esc(st.station)).join(", ");
   let p = `Dans <strong>${sup.length} stations sur ${STATIONS.length}</strong>, l'été 2026 observé dépasse déjà le scénario TRACC 2050 moyen.`;
   if (egal.length) p += ` Égalité à ${noms(egal)}.`;
   if (inf.length) p += ` En dessous : ${noms(inf)}.`;

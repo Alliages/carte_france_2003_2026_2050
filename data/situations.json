@@ -1,0 +1,26 @@
+[
+  {
+    "cle": "2003",
+    "annee": "2003",
+    "libelle": "Th-D canicule",
+    "couleur": "#55739B"
+  },
+  {
+    "cle": "2026",
+    "annee": "2026",
+    "libelle": "Observé",
+    "couleur": "#FABD4A"
+  },
+  {
+    "cle": "2050",
+    "annee": "2050",
+    "libelle": "TRACC +2,7 °C",
+    "couleur": "#FA9600"
+  },
+  {
+    "cle": "2050ext",
+    "annee": "2050",
+    "libelle": "TRACC vague de chaleur",
+    "couleur": "#FF554B"
+  }
+]
