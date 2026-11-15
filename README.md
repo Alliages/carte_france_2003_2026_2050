@@ -12,7 +12,7 @@ Version actuelle : **1.0.0**
 
 ## TODO
 
-séparer l'index.html en plusieurs fichiers disctincts (CSV pour les infos...)
+rajouter des indicateurs et permettre l'export
 
 ## Licence et crédits
 
