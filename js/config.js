@@ -42,4 +42,24 @@ const G = { x0: 40, x1: 352, yBas: 250, yHaut: 46, colL: 46 };
 // Gabarit de la vue d'ensemble (une ligne par station, 4 barres horizontales)
 const E = { xBarres: 92, xMax: 316, barreH: 10, barreEsp: 3, ligneEsp: 12, yDebut: 30 };
 
+// Export SVG du graphique : le fichier doit être autonome (hors page, hors thème sombre),
+// donc les règles de style sont embarquées avec les couleurs du thème clair.
+const EXPORT_COULEURS = {
+  "--fond": "#ffffff", "--texte": "#1c1c1e", "--texte-2": "#55555c", "--texte-3": "#8a8a91",
+  "--trait": "#d9d9dc", "--trait-fort": "#aaaab2",
+};
+const EXPORT_STYLE = `
+  text { font-family: Aptos, "Segoe UI", Arial, sans-serif; }
+  .titre-graphe { font-size: 13px; fill: var(--texte-2); }
+  .axe { font-size: 11px; fill: var(--texte-3); }
+  .axe.val-ens { fill: var(--texte-2); }
+  .grillage { stroke: var(--trait); stroke-width: 1; }
+  .valeur { font-size: 15px; font-weight: 600; fill: var(--texte); text-anchor: middle; }
+  .ecart { font-size: 11px; fill: var(--texte-2); text-anchor: middle; }
+  .annee { font-size: 12px; fill: var(--texte); text-anchor: middle; }
+  .scenario { font-size: 11px; fill: var(--texte-3); text-anchor: middle; }
+  .nom-ens { font-size: 13px; font-weight: 600; fill: var(--texte); }
+  .zone-ens { font-size: 11px; fill: var(--texte-3); }`;
+const EXPORT_MARGE = 10;   // marge blanche autour du graphique exporté (px du viewBox)
+
 const SVG_NS = "http://www.w3.org/2000/svg";

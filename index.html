@@ -24,7 +24,7 @@
     <div>
       <h1>Chaleur d’été - 2003 2050 - par villes</h1>
       <p class="hub">
-        <a href="https://www.ifpeb.fr/travaux/le-hub-des-prescripteurs-bas-carbone/">Hub des Prescripteurs Bas Carbone</a> | <a href="https://alliages.github.io/zones-climatiques-re2020/">Zones climatiques de la RE2020</a> | <a href="https://vulgarisateurdh.streamlit.app/">Analyse de la Météo & Chaleur</a>>
+        <a href="https://www.ifpeb.fr/travaux/le-hub-des-prescripteurs-bas-carbone/">Hub des Prescripteurs Bas Carbone</a> | <a href="https://alliages.github.io/zones-climatiques-re2020/">Zones climatiques de la RE2020</a> | <a href="https://vulgarisateurdh.streamlit.app/">Analyse de la Météo &amp; Chaleur</a>
       </p>
       <p class="sous-titre" id="sous-titre"></p>
     </div>
@@ -52,10 +52,12 @@
       <p class="zone-nom" id="p-zone"></p>
       <svg id="p-graphe" viewBox="0 0 360 300" role="img"></svg>
       <p class="lecture" id="p-lecture"></p>
+      <button id="p-export" class="export" type="button">Exporter le graphique (SVG)</button>
     </aside>
   </div>
 
   <div class="tableau-wrap"><table id="tableau" aria-label="Valeurs par station"></table></div>
+  <p class="exports"><button id="t-export" class="export" type="button">Exporter le tableau (CSV)</button></p>
 
   <p class="sources">
     Données (<a href="data/comparaison_meteo.csv" download>CSV</a>) : fichier météo Th-D canicule de la RE2020 (2003), observations de l'été 2026 aux stations,

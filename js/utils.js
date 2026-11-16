@@ -22,6 +22,18 @@ function el(nom, attrs = {}, parent, texte) {
   if (parent) parent.appendChild(e);
   return e;
 }
+/* ---------- export : téléchargement d'un fichier généré dans le navigateur ---------- */
+function telecharger(contenu, nom, type) {
+  const url = URL.createObjectURL(new Blob([contenu], { type }));
+  const a = Object.assign(document.createElement("a"), { href: url, download: nom });
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+// texte sûr pour un nom de fichier (« Saint-Auban » → « Saint-Auban », « Île d'Yeu » → « Ile_d_Yeu »)
+const slug = t => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9-]+/g, "_");
+
 function activer(e, action) {   // clic + clavier (Entrée / Espace)
   e.addEventListener("click", action);
   e.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); action(); } });

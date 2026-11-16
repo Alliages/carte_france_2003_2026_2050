@@ -54,9 +54,12 @@ svg { display: block; width: 100%; height: auto; }
 .panneau { background: var(--surface); border-radius: 12px; padding: 18px 18px 14px; position: sticky; top: 16px; }
 .panneau h2 { font-size: 19px; margin: 0; font-weight: 600; }
 .panneau .zone-nom { color: var(--texte-2); font-size: 13px; margin: 0 0 10px; }
-.retour { font: inherit; font-size: 13px; color: var(--texte-2); background: none; border: 1px solid var(--trait-fort);
-          border-radius: 6px; padding: 3px 10px; cursor: pointer; margin-bottom: 10px; }
-.retour:hover { color: var(--texte); border-color: var(--texte-2); }
+.retour, .export { font: inherit; font-size: 13px; color: var(--texte-2); background: none; border: 1px solid var(--trait-fort);
+                   border-radius: 6px; padding: 3px 10px; cursor: pointer; margin-bottom: 10px; }
+.retour:hover, .export:hover { color: var(--texte); border-color: var(--texte-2); }
+.panneau .export { margin: 4px 0 0; }
+.exports { margin: 10px 0 0; }
+.exports .export { margin: 0; }
 .ligne-ens { cursor: pointer; }
 .ligne-ens:hover .fond-ligne { fill: var(--fond); }
 .nom-ens { font-size: 13px; font-weight: 600; fill: var(--texte); }
