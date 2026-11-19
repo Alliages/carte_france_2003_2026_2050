@@ -1,10 +1,16 @@
 // Utilitaires sans état : formats de nombres, protection du HTML et création d'éléments SVG.
 
 /* ---------- mise en forme des nombres ---------- */
-const fmt = v => Math.round(v).toLocaleString("fr-FR");
-const fmtEcart = v => (v > 0 ? "+" : v < 0 ? "−" : "±") + fmt(Math.abs(v));
+// d = nombre de décimales (colonne « decimales » de indicateurs.csv)
+const fmt = (v, d = 0) => v.toLocaleString("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmtEcart = (v, d = 0) => {
+  const r = Number(v.toFixed(d));   // l'écart arrondi décide du signe (évite « −0 »)
+  return (r > 0 ? "+" : r < 0 ? "−" : "±") + fmt(Math.abs(r), d);
+};
 // format court pour les étiquettes du glyphe (1 234 → « 1,2k »)
-const fmtCourt = v => v >= 1000 ? (v / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + "k" : fmt(v);
+const fmtCourt = (v, d = 0) => v >= 1000 ? (v / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + "k" : fmt(v, d);
+// graduations : jusqu'à 1 décimale (pas de 2,5 par exemple)
+const fmtAxe = v => v.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
 // pas « rond » pour les graduations (1, 2, 2,5 ou 5 × 10^n)
 function pasRond(max, nb = 4) {
   const brut = max / nb, mag = 10 ** Math.floor(Math.log10(brut));

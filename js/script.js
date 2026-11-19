@@ -4,8 +4,18 @@
 let zoneActive = null;     // zone sélectionnée (null = vue d'ensemble)
 let maxNational = 0;       // maximum de l'indicateur actif, toutes stations et situations
 
-/* ---------- accès aux valeurs ---------- */
+/* ---------- indicateurs (data/indicateurs.csv → INDICATEURS_LISTE, déjà triés par ordre) ---------- */
+// proposés : les indicateurs actifs, plus les choisis même s'ils étaient désactivés dans le CSV
+const INDICATEURS = Object.fromEntries(INDICATEURS_LISTE
+  .filter(i => i.actif || INDICATEURS_CHOISIS.includes(i.id)).map(i => [i.id, i]));
+const estChoisi = id => INDICATEURS_CHOISIS.includes(id);
+let tousAffiches = TOUS_PAR_DEFAUT;   // état de l'interrupteur « tous »
+
+/* ---------- accès aux valeurs et formats de l'indicateur actif ---------- */
 const ind = () => INDICATEURS[INDICATEUR_ACTIF];
+const titreInd = () => `${ind().libelle} (${ind().unite})`;
+const dec = () => ind().decimales;
+const f = v => fmt(v, dec());
 const valeur = (st, cle) => st.valeurs[cle][INDICATEUR_ACTIF];
 // stations où 2026 observé dépasse le scénario TRACC 2050 moyen
 function comptage() {
@@ -25,8 +35,27 @@ for (const [z, g] of Object.entries(ZONES)) el("path", { d: g.d, class: "zone", 
 el("path", { d: DEPARTEMENTS, class: "deps" }, document.getElementById("departements"));
 
 const selecteur = document.getElementById("indicateur");
-selecteur.innerHTML = Object.entries(INDICATEURS).map(([k, i]) => `<option value="${esc(k)}">${esc(i.menu)}</option>`).join("");
-selecteur.value = INDICATEUR_ACTIF;
+const interrupteur = document.getElementById("tous");
+const option = i => `<option value="${esc(i.id)}" title="${esc(i.bulle)}">${esc(i.libelle)}</option>`;
+// liste courte (indicateurs choisis) ou complète (choisis d'abord, puis les autres actifs)
+function remplirSelecteur() {
+  const liste = Object.values(INDICATEURS);
+  const choisis = liste.filter(i => estChoisi(i.id)), autres = liste.filter(i => !estChoisi(i.id));
+  selecteur.innerHTML = tousAffiches
+    ? `<optgroup label="Indicateurs choisis">${choisis.map(option).join("")}</optgroup>`
+      + `<optgroup label="Autres indicateurs">${autres.map(option).join("")}</optgroup>`
+    : choisis.map(option).join("");
+  if (!tousAffiches && !estChoisi(INDICATEUR_ACTIF)) INDICATEUR_ACTIF = INDICATEUR_DEPART;
+  selecteur.value = INDICATEUR_ACTIF;
+}
+interrupteur.checked = tousAffiches;
+interrupteur.addEventListener("change", () => {
+  tousAffiches = interrupteur.checked;
+  const avant = INDICATEUR_ACTIF;
+  remplirSelecteur();
+  if (INDICATEUR_ACTIF !== avant) toutDessiner();   // un « autre » indicateur était affiché
+});
+remplirSelecteur();
 selecteur.addEventListener("change", () => { INDICATEUR_ACTIF = selecteur.value; toutDessiner(); });
 
 document.getElementById("p-retour").addEventListener("click", () => choisir(null));
@@ -34,7 +63,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") choisir(null
 
 /* ---------- en-tête : sous-titre et compteur 2026 > 2050 moyen ---------- */
 function dessinerEntete() {
-  document.getElementById("sous-titre").textContent = ind().sousTitre + SOUS_TITRE_FIN;
+  document.getElementById("sous-titre").textContent = ind().bulle + SOUS_TITRE_FIN;
   const { sup, egal } = comptage();
   document.getElementById("compteur").innerHTML =
     `2026 observé &gt; TRACC 2050 moyen : <strong>${sup.length} stations sur ${STATIONS.length}</strong>`
@@ -61,14 +90,15 @@ function dessinerGlyphes() {
     SITUATIONS.forEach((s, i) => {
       const bx = x0 + CARTE_PAD + i * (BARRE_L + BARRE_ESP), h = hauteurs[i];
       el("rect", { x: bx, y: yBase - h, width: BARRE_L, height: Math.max(h, 1), rx: 2, fill: s.couleur }, g);
-      el("text", { x: bx + BARRE_L / 2, y: yBase - h - 3, class: "val" }, g, fmtCourt(valeur(st, s.cle)));
+      // avec décimales (« 21,4 »), étiquette plus petite pour ne pas toucher sa voisine
+      el("text", { x: bx + BARRE_L / 2, y: yBase - h - 3, class: dec() > 0 ? "val serre" : "val" }, g, fmtCourt(valeur(st, s.cle), dec()));
     });
     el("circle", { cx: st.x, cy: st.y, r: 4.2, class: "station" }, g);
     // nom de la station à côté du point, du côté opposé au glyphe
     const aGauche = st.gx > st.x;
     el("text", { x: st.x + (aGauche ? -8 : 8), y: st.y + 4, class: "nom",
                  "text-anchor": aGauche ? "end" : "start" }, g, st.station);
-    el("title", {}, g, `${st.station} (${st.zone}) — ` + SITUATIONS.map(s => `${s.annee} ${s.libelle} : ${fmt(valeur(st, s.cle))}`).join(" · "));
+    el("title", {}, g, `${st.station} (${st.zone}) — ` + SITUATIONS.map(s => `${s.annee} ${s.libelle} : ${f(valeur(st, s.cle))}`).join(" · "));
     activer(g, () => choisir(zoneActive === st.zone ? null : st.zone));
   }
 }
@@ -83,7 +113,7 @@ function dessinerTableau() {
         + SITUATIONS.map(s => {
             // 2026 en gras quand il dépasse le TRACC 2050 moyen
             const fort = s.cle === "2026" && valeur(st, "2026") > valeur(st, "2050");
-            return `<td${fort ? ' class="fort"' : ""}>${fmt(valeur(st, s.cle))}</td>`;
+            return `<td${fort ? ' class="fort"' : ""}>${f(valeur(st, s.cle))}</td>`;
           }).join("") + "</tr>").join("")
     + "</tbody>";
   tableau.querySelectorAll("tbody tr").forEach(tr =>
@@ -131,14 +161,14 @@ function dessinerGraphe(st) {
   svg.innerHTML = "";
   svg.setAttribute("viewBox", "0 0 360 300");
   svg.setAttribute("role", "img");
-  el("title", {}, svg, `${ind().titre} à ${st.station}`);
-  el("text", { x: 0, y: 14, class: "titre-graphe" }, svg, ind().titre);
+  el("title", {}, svg, `${titreInd()} à ${st.station}`);
+  el("text", { x: 0, y: 14, class: "titre-graphe" }, svg, titreInd());
 
   const pas = pasRond(maxNational), haut = Math.ceil(maxNational / pas) * pas;
   const y = v => G.yBas - v / haut * (G.yBas - G.yHaut);
   for (let v = 0; v <= haut; v += pas) {
     el("line", { x1: G.x0, x2: G.x1, y1: y(v), y2: y(v), class: "grillage" }, svg);
-    el("text", { x: G.x0 - 6, y: y(v) + 4, class: "axe", "text-anchor": "end" }, svg, fmt(v));
+    el("text", { x: G.x0 - 6, y: y(v) + 4, class: "axe", "text-anchor": "end" }, svg, fmtAxe(v));
   }
   const vRef = valeur(st, REFERENCE);
   const refCouleur = SITUATIONS.find(s => s.cle === REFERENCE).couleur;
@@ -148,8 +178,8 @@ function dessinerGraphe(st) {
   SITUATIONS.forEach((s, i) => {
     const v = valeur(st, s.cle), cx = G.x0 + pasCol * (i + 0.5);
     el("rect", { x: cx - G.colL / 2, y: y(v), width: G.colL, height: Math.max(G.yBas - y(v), 1), rx: 3, fill: s.couleur }, svg);
-    el("text", { x: cx, y: y(v) - 20, class: "valeur" }, svg, fmt(v));
-    el("text", { x: cx, y: y(v) - 6, class: "ecart" }, svg, s.cle === REFERENCE ? "réf." : fmtEcart(v - vRef));
+    el("text", { x: cx, y: y(v) - 20, class: "valeur" }, svg, f(v));
+    el("text", { x: cx, y: y(v) - 6, class: "ecart" }, svg, s.cle === REFERENCE ? "réf." : fmtEcart(v - vRef, dec()));
     el("text", { x: cx, y: G.yBas + 18, class: "annee" }, svg, s.annee);
     // libellé du scénario sur une ou deux lignes
     s.libelle.split(/ (?=vague|\+)/).forEach((ligne, j) =>
@@ -159,12 +189,12 @@ function dessinerGraphe(st) {
 }
 
 function phraseLecture(st) {
-  const v = Object.fromEntries(SITUATIONS.map(s => [s.cle, valeur(st, s.cle)])), i = ind();
-  let p = `En 2026, <strong>${fmt(v["2026"])} ${i.unite}</strong> ${i.observe}, soit ${fmtEcart(v["2026"] - v["2003"])} par rapport au fichier canicule 2003. `;
-  if (v["2026"] > v["2050"]) p += `L'été 2026 <strong>dépasse déjà</strong> le scénario TRACC 2050 moyen (${fmt(v["2050"])}). `;
-  else if (v["2026"] === v["2050"]) p += `L'été 2026 <strong>égale</strong> le scénario TRACC 2050 moyen (${fmt(v["2050"])}). `;
-  else p += `Le scénario TRACC 2050 moyen en prévoit ${fmt(v["2050"])}. `;
-  p += `Avec une vague de chaleur en 2050 : <strong>${fmt(v["2050ext"])}</strong>.`;
+  const v = Object.fromEntries(SITUATIONS.map(s => [s.cle, valeur(st, s.cle)])), u = esc(ind().unite);
+  let p = `Été 2026 observé : <strong>${f(v["2026"])} ${u}</strong>, soit ${fmtEcart(v["2026"] - v["2003"], dec())} par rapport au fichier canicule 2003. `;
+  if (v["2026"] > v["2050"]) p += `Il <strong>dépasse déjà</strong> le scénario TRACC 2050 moyen (${f(v["2050"])}). `;
+  else if (v["2026"] === v["2050"]) p += `Il <strong>égale</strong> le scénario TRACC 2050 moyen (${f(v["2050"])}). `;
+  else p += `Le scénario TRACC 2050 moyen donne ${f(v["2050"])}. `;
+  p += `Avec une vague de chaleur en 2050 : <strong>${f(v["2050ext"])}</strong>.`;
   return p;
 }
 
@@ -176,8 +206,8 @@ function dessinerEnsemble() {
   const hTotal = E.yDebut + STATIONS.length * (hLigne + E.ligneEsp) + 4;
   svg.setAttribute("viewBox", `0 0 360 ${hTotal}`);
   svg.setAttribute("role", "group");   // contient des boutons : pas role="img"
-  el("title", {}, svg, `${ind().titre}, 8 stations`);
-  el("text", { x: 0, y: 14, class: "titre-graphe" }, svg, ind().titre);
+  el("title", {}, svg, `${titreInd()}, 8 stations`);
+  el("text", { x: 0, y: 14, class: "titre-graphe" }, svg, titreInd());
   const x = v => E.xBarres + v / maxNational * (E.xMax - E.xBarres);
 
   STATIONS.forEach((st, i) => {
@@ -189,7 +219,7 @@ function dessinerEnsemble() {
     SITUATIONS.forEach((s, j) => {
       const v = valeur(st, s.cle), yb = y0 + j * (E.barreH + E.barreEsp);
       el("rect", { x: E.xBarres, y: yb, width: Math.max(x(v) - E.xBarres, 1), height: E.barreH, rx: 2, fill: s.couleur }, g);
-      el("text", { x: x(v) + 4, y: yb + E.barreH - 1, class: "axe val-ens" }, g, fmt(v));
+      el("text", { x: x(v) + 4, y: yb + E.barreH - 1, class: "axe val-ens" }, g, f(v));
     });
     activer(g, () => choisir(st.zone));
   });
