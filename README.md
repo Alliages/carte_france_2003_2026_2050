@@ -36,14 +36,18 @@ La page fonctionne aussi en ouvrant `index.html` directement dans un navigateur 
 | --- | --- |
 | `index.html` | structure de la page |
 | `styles.css` | styles (thèmes clair / sombre) |
-| `js/config.js` | réglages : indicateurs choisis, interrupteur « tous », indicateur de départ, gabarits de dessin, style de l'export SVG |
+| `js/config.js` | réglages : version, indicateurs choisis, interrupteur « tous », indicateur de départ, clés des situations, gabarits de dessin, style de l'export SVG |
 | `js/utils.js` | formats de nombres, échappement HTML, création d'éléments SVG, téléchargement de fichiers |
-| `js/script.js` | dessin de la carte, du panneau et du tableau, interactions, exports |
+| `js/calculs.js` | état et calculs sur les données (sans DOM) |
+| `js/dessin.js` | dessin de la carte, du panneau et du tableau |
+| `js/exports.js` | exports CSV et SVG |
+| `js/script.js` | initialisation, sélection d'une zone, événements |
 | `js/zones.js`, `js/departements.js` | contours des 8 zones et des départements |
 | `js/data.js` | **généré** — ne pas modifier à la main |
 | `data/` | sources : `comparaison_meteo.csv`, `stations.json` (positions), `situations.json`, `indicateurs.csv` (libellés), `hypotheses.csv` (seuils) |
 | `build/build_data.py` | régénère `js/data.js` à partir de `data/` |
 | `docs/` | captures d'écran |
+| `.github/workflows/` | vérification : `js/data.js` à jour avec `data/`, syntaxe des scripts |
 | `img/` | logo et icônes |
 
 ## Description du code
@@ -68,18 +72,19 @@ data/hypotheses.csv        ─┘
 
 ### Page web
 
-Les scripts sont des scripts classiques chargés dans l'ordre de `index.html` (`config.js`, `utils.js`, `zones.js`, `departements.js`, `data.js`, `script.js`). Ils partagent des constantes globales, ce qui permet d'ouvrir la page en local sans serveur.
+Les scripts sont des scripts classiques chargés dans l'ordre de `index.html` (`config.js`, `utils.js`, `zones.js`, `departements.js`, `data.js`, `calculs.js`, `dessin.js`, `exports.js`, `script.js`). Ils partagent des constantes globales, ce qui permet d'ouvrir la page en local sans serveur.
 
-- **`config.js`** : `INDICATEURS_CHOISIS` (liste courte), `TOUS_PAR_DEFAUT` (état de l'interrupteur à l'ouverture), `INDICATEUR_DEPART`, station de départ, situation de référence (`REFERENCE`), gabarits de dessin (`BARRE_*`, `G`, `E`) et style embarqué dans les SVG exportés.
-- **`utils.js`** : `fmt` / `fmtEcart` / `fmtCourt` / `fmtAxe` (formats français, nombre de décimales de l'indicateur), `pasRond` (graduations), `esc` (protège le HTML venant des données), `el` (crée un élément SVG), `activer` (clic + clavier), `telecharger` et `slug` (exports).
-- **`script.js`** : tout le dessin est refait à chaque changement d'indicateur par `toutDessiner()`.
+- **`config.js`** : `INDICATEURS_CHOISIS` (liste courte), `TOUS_PAR_DEFAUT` (état de l'interrupteur à l'ouverture), `INDICATEUR_DEPART`, station de départ, situation de référence (`REFERENCE`), clés des situations comparées (`CLE_*`), `VERSION`, gabarits de dessin (`BARRE_*`, `G`, `E`) et style embarqué dans les SVG exportés.
+- **`utils.js`** : `fmt` / `fmtEcart` / `fmtCourt` / `fmtAxe` (formats français, nombre de décimales de l'indicateur), `pasRond` (graduations), `esc` (protège le HTML venant des données), `el` (crée un élément SVG), `pastille` (pastille de couleur), `activer` (clic + clavier), `telecharger` et `slug` (exports).
+- **`calculs.js`** : état (`zoneActive`, `maxNational`), accès aux valeurs de l'indicateur actif (`valeur`, `f`, `ind`), `comptage()` et `calculerMax()`.
+- **`dessin.js`** et **`script.js`** : tout le dessin est refait à chaque changement d'indicateur par `toutDessiner()` (`script.js`).
   - `INDICATEURS` : indicateurs proposés (actifs de `INDICATEURS_LISTE`) ; `remplirSelecteur()` construit la liste courte ou complète selon l'interrupteur « tous » ;
   - `dessinerEntete()` : sous-titre et compteur 2026 > TRACC 2050 moyen ;
   - `dessinerGlyphes()` : mini-histogrammes sur la carte, avec trait de rappel vers la station ;
   - `dessinerTableau()` : tableau récapitulatif ;
   - `dessinerGraphe(station)` et `dessinerEnsemble()` : les deux vues du panneau ;
   - `choisir(zone)` : sélection d'une zone (`null` = vue d'ensemble), synchronise carte, tableau et panneau ;
-  - `exporterTableau()` et `exporterGraphe()` : exports CSV et SVG, générés dans le navigateur.
+  - `exports.js` : `exporterTableau()` et `exporterGraphe()`, exports CSV et SVG générés dans le navigateur.
 - **`maxNational`** : maximum de l'indicateur actif, toutes stations et situations confondues, qui fixe l'échelle commune à la carte et aux graphiques.
 
 Les graphiques sont du SVG pur, dessiné à la main, sans bibliothèque. Les couleurs et le thème sombre passent par des variables CSS (`styles.css`).

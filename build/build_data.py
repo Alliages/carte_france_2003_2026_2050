@@ -23,13 +23,15 @@ JSON_STATIONS = RACINE / "data" / "stations.json"
 JSON_SITUATIONS = RACINE / "data" / "situations.json"
 CSV_INDICATEURS = RACINE / "data" / "indicateurs.csv"
 CSV_HYPOTHESES = RACINE / "data" / "hypotheses.csv"
+JS_CONFIG = RACINE / "js" / "config.js"      # relu pour vérifier les indicateurs choisis
 SORTIE = RACINE / "js" / "data.js"
 
 MOTIF_REPERE = re.compile(r"\[\[hyp:([\w]+)\]\]")   # [[hyp:seuil_nuit_tropicale]]
 # Les bulles renvoient aux « réglages » de l'outil Météo & Chaleur, qui a calculé les indicateurs
 REGLAGES = ("les réglages", "les réglages de l'outil Météo & Chaleur")
 
-COLONNES_TEXTE = {"zone", "station", "situation", "fichier"}   # le reste est converti en nombre
+COLONNES_ID = {"zone", "station", "situation"}   # identifient la ligne : pas des indicateurs
+COLONNES_TEXTE = COLONNES_ID | {"fichier"}       # colonnes non numériques (le reste est converti en nombre)
 
 
 def lire_csv():
@@ -37,7 +39,14 @@ def lire_csv():
     lignes = {}
     with open(CSV_METEO, encoding="utf-8", newline="") as f:
         for row in csv.DictReader(f):
-            valeurs = {c: (v if c in COLONNES_TEXTE else float(v)) for c, v in row.items()}
+            valeurs = {}
+            for c, v in row.items():
+                try:
+                    valeurs[c] = v if c in COLONNES_TEXTE else float(v)
+                except (TypeError, ValueError):
+                    raise SystemExit(f"Valeur non numérique dans comparaison_meteo.csv : "
+                                     f"zone {row['zone']}, situation {row['situation']}, colonne « {c} » = {v!r} "
+                                     "(séparateur décimal : le point)")
             lignes[(row["zone"], row["situation"])] = valeurs
     return lignes
 
@@ -80,12 +89,26 @@ def lire_indicateurs(colonnes):
     return liste
 
 
+def verifier_config_js(indicateurs):
+    """Arrêt si config.js cite un indicateur absent de la liste (sinon la page planterait à l'ouverture)."""
+    texte = JS_CONFIG.read_text(encoding="utf-8")
+    ids = {i["id"] for i in indicateurs}
+    choisis = re.search(r"INDICATEURS_CHOISIS\s*=\s*\[(.*?)\]", texte, re.S)
+    depart = re.search(r'INDICATEUR_DEPART\s*=\s*"(\w+)"', texte)
+    cites = (re.findall(r'"(\w+)"', choisis.group(1)) if choisis else []) + ([depart.group(1)] if depart else [])
+    inconnus = [c for c in cites if c not in ids]
+    if inconnus:
+        raise SystemExit(f"js/config.js cite des indicateurs inconnus : {', '.join(inconnus)} "
+                         "(absents de indicateurs.csv ou de comparaison_meteo.csv)")
+
+
 def main():
     situations = json.loads(JSON_SITUATIONS.read_text(encoding="utf-8"))
     stations = json.loads(JSON_STATIONS.read_text(encoding="utf-8"))
     meteo = lire_csv()
     colonnes = set(next(iter(meteo.values()))) - COLONNES_TEXTE
     indicateurs = lire_indicateurs(colonnes)
+    verifier_config_js(indicateurs)
 
     for st in stations:
         st["valeurs"] = {}
@@ -93,8 +116,8 @@ def main():
             ligne = meteo.get((st["zone"], sit["cle"]))
             if ligne is None:
                 raise SystemExit(f"Ligne manquante dans le CSV : zone {st['zone']}, situation {sit['cle']}")
-            # on ne garde que les indicateurs (pas les colonnes d'identification)
-            st["valeurs"][sit["cle"]] = {c: v for c, v in ligne.items() if c not in {"zone", "station", "situation"}}
+            # on ne garde que les indicateurs (pas les colonnes d'identification ni de texte)
+            st["valeurs"][sit["cle"]] = {c: v for c, v in ligne.items() if c not in COLONNES_TEXTE}
 
     dump = lambda o: json.dumps(o, ensure_ascii=False)
     SORTIE.write_text(

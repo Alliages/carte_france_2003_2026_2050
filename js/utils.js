@@ -44,3 +44,10 @@ function activer(e, action) {   // clic + clavier (Entrée / Espace)
   e.addEventListener("click", action);
   e.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); action(); } });
 }
+
+// pastille de couleur (légende, en-têtes du tableau) : couleur posée via le DOM, sans attribut style (compatible CSP)
+function pastille(couleur) {
+  const i = document.createElement("i");
+  i.style.background = couleur;
+  return i;
+}

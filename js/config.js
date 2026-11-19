@@ -11,13 +11,26 @@ const SOUS_TITRE_FIN = " Valeurs à la station de référence de chaque zone : f
 let   INDICATEUR_ACTIF = INDICATEUR_DEPART;
 const STATION_DEPART   = null;         // null = vue d'ensemble à l'ouverture (aucune sélection)
 const REFERENCE        = "2003";       // situation de référence pour les écarts
+const VERSION          = "1.1.0";      // affichée en pied de page
+
+// Clés des situations de data/situations.json utilisées dans les textes et comparaisons
+const CLE_OBSERVE      = "2026";       // été observé
+const CLE_TRACC        = "2050";       // scénario TRACC moyen (comparé à l'observé)
+const CLE_TRACC_VAGUE  = "2050ext";    // scénario TRACC avec vague de chaleur
 
 // Gabarit du glyphe sur la carte (px du viewBox)
 const BARRE_L = 19, BARRE_ESP = 4, CARTE_PAD = 6, H_MAX_CARTE = 100, H_VALEURS = 15;
+const CARTE_MARGE_HAUT = 4, ETIQ_ZONE_DY = 5, ETIQ_VAL_DY = 3;   // marge au-dessus des étiquettes, décalages verticaux des textes
+const STATION_R = 4.2, NOM_DECALAGE = 8;                         // point de la station : rayon, écart du nom
 // Gabarit du graphique de détail
-const G = { x0: 40, x1: 352, yBas: 250, yHaut: 46, colL: 46 };
+const G = { x0: 40, x1: 352, yBas: 250, yHaut: 46, colL: 46,
+            largeur: 360, hauteur: 300,                         // viewBox
+            yTitre: 14, yValeur: 20, yEcart: 6,                 // titre ; valeur et écart au-dessus d'une barre
+            yAnnee: 18, yScenario: 33, hScenario: 13 };         // année et libellé sous l'axe (hScenario : interligne)
 // Gabarit de la vue d'ensemble (une ligne par station, 4 barres horizontales)
-const E = { xBarres: 92, xMax: 316, barreH: 10, barreEsp: 3, ligneEsp: 12, yDebut: 30 };
+const E = { xBarres: 92, xMax: 316, barreH: 10, barreEsp: 3, ligneEsp: 12, yDebut: 30,
+            largeur: 360, yTitre: 14, yZone: 14, bas: 4,        // viewBox ; titre ; zone sous le nom ; marge basse
+            fondX: -4, fondL: 368, fondPad: 4 };                // zone cliquable d'une ligne
 
 // Export SVG du graphique : le fichier doit être autonome (hors page, hors thème sombre),
 // donc les règles de style sont embarquées avec les couleurs du thème clair.

@@ -3,18 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Chaleur d’été 2003 2050 par villes</title>
+<title>Chaleur d’été 2003 · 2026 · 2050 par villes</title>
 <meta name="description" content="Carte interactive : nuits chaudes, heures > 28 °C et degrés-heures dans les 8 villes de référence des zones RE2020, en 2003, 2026 et 2050 (scénarios TRACC).">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Chaleur d’été 2003 · 2026 · 2050 par villes">
 <meta property="og:description" content="8 villes, 8 zones RE2020 : l’été 2026 observé comparé à la canicule réglementaire 2003 et aux scénarios TRACC 2050.">
 <meta property="og:url" content="https://alliages.github.io/carte_france_2003_2026_2050/">
-<meta property="og:image" content="https://alliages.github.io/carte_france_2003_2026_2050/docs/preview1.0.0.png">
+<meta property="og:image" content="https://alliages.github.io/carte_france_2003_2026_2050/docs/apercu-ensemble.png">
 <meta name="twitter:card" content="summary_large_image">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#18191c" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" type="image/png" href="img/favicon-96x96.png" sizes="96x96" />
 <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
-<link rel="shortcut icon" href="img/favicon.ico" />
+<link rel="icon" href="img/favicon.ico" sizes="any" />
 <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png" />
 <link rel="manifest" href="img/site.webmanifest" />
 </head>
@@ -22,13 +25,13 @@
 <main>
   <header class="entete">
     <div>
-      <h1>Chaleur d’été - 2003 2050 - par villes</h1>
-      <p class="hub">
+      <h1>Chaleur d’été 2003 · 2026 · 2050 par villes</h1>
+      <nav class="hub" aria-label="Outils liés">
         <a href="https://www.ifpeb.fr/travaux/le-hub-des-prescripteurs-bas-carbone/">Hub des Prescripteurs Bas Carbone</a> | <a href="https://alliages.github.io/zones-climatiques-re2020/">Zones climatiques de la RE2020</a> | <a href="https://vulgarisateurdh.streamlit.app/">Analyse de la Météo &amp; Chaleur</a>
-      </p>
+      </nav>
       <p class="sous-titre" id="sous-titre"></p>
     </div>
-    <a href="https://www.ifpeb.fr/travaux/le-hub-des-prescripteurs-bas-carbone/" title="Hub des Prescripteurs Bas Carbone"><img class="logo-hub" src="img/image-1.png" alt="Hub des Prescripteurs Bas Carbone"></a>
+    <a href="https://www.ifpeb.fr/travaux/le-hub-des-prescripteurs-bas-carbone/" title="Hub des Prescripteurs Bas Carbone"><img class="logo-hub" src="img/image-1.png" width="78" height="104" alt="Hub des Prescripteurs Bas Carbone"></a>
   </header>
   <div class="barre-outils">
     <label for="indicateur">Indicateur</label>
@@ -38,10 +41,11 @@
     </label>
     <p class="compteur" id="compteur" aria-live="polite"></p>
   </div>
+  <noscript><p class="sources">Cette page nécessite JavaScript. Les données restent disponibles en <a href="data/comparaison_meteo.csv" download>CSV</a>.</p></noscript>
   <div class="legende" id="legende"></div>
 
   <div class="grille">
-    <svg id="carte" viewBox="0 0 640 655" role="img" aria-labelledby="carte-titre">
+    <svg id="carte" viewBox="0 0 640 655" role="group" aria-labelledby="carte-titre">
       <title id="carte-titre">Carte des 8 zones climatiques RE2020 avec, pour chaque station de référence, l'indicateur sous 4 situations météo</title>
       <g id="fond"></g>
       <g id="departements"></g>
@@ -66,8 +70,8 @@
     Données (<a href="data/comparaison_meteo.csv" download>CSV</a>) : fichier météo Th-D canicule de la RE2020 (2003), observations de l'été 2026 aux stations,
     scénarios TRACC +2,7 °C à l'horizon 2050 (moyen et vague de chaleur). Fond : IGN Admin Express via france-geojson (Licence Ouverte).
   </p>
-  <footer class="pied">  
-    Réalisé par <a href="https://guillaume-meunier.fr/">Guillaume Meunier</a>, <a href="https://github.com/Alliages/carte_france_2003_2026_2050">code source sur GitHub</a> · version 1.1.0
+  <footer class="pied">
+    Réalisé par <a href="https://guillaume-meunier.fr/">Guillaume Meunier</a>, <a href="https://github.com/Alliages/carte_france_2003_2026_2050">code source sur GitHub</a> · <span class="tag-version" id="version">v1.1.0</span>
   </footer>
 </main>
 <script src="js/config.js"></script>
@@ -75,6 +79,9 @@
 <script src="js/zones.js"></script>
 <script src="js/departements.js"></script>
 <script src="js/data.js"></script>
+<script src="js/calculs.js"></script>
+<script src="js/dessin.js"></script>
+<script src="js/exports.js"></script>
 <script src="js/script.js"></script>
 </body>
 </html>
