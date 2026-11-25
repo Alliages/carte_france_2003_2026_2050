@@ -1,18 +1,30 @@
-# Carte de comparaison 2003 | 2026 | 2050 de villes en France
+<div align="center">
+
+<img src="img/web-app-manifest-512x512.png" alt="Logo" width="120">
+
+[![Version](https://img.shields.io/badge/version-1.1.0-af1d29.svg)](#versions)
+[![Licence](https://img.shields.io/github/license/Alliages/carte_france_2003_2026_2050.svg)](LICENSE)
+[![Dépendances](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](index.html)
+[![Technos](https://img.shields.io/badge/HTML%20%C2%B7%20JS%20%C2%B7%20CSS-sans%20serveur-f7df1e.svg)](index.html)
+[![Page](https://img.shields.io/badge/page-en%20ligne-ff6800.svg)](https://alliages.github.io/carte_france_2003_2026_2050/)
+
+# Chaleur d'été 2003 · 2026 · 2050 par villes
+
+**La chaleur d'été des 8 zones RE2020, en 2003, 2026 et 2050.**
+
+[Page en ligne](https://alliages.github.io/carte_france_2003_2026_2050/) · [Utilisation](#utilisation) · [Structure](#structure-du-dépôt) · [Sources](#sources-des-données) · [Versions](#versions)
+
+<img src="docs/apercu-ensemble.png" alt="Vue d'ensemble : carte des 8 zones, panneau de comparaison et tableau" width="800">
+
+> Outil réalisé avec l'aide du [Hub des Prescripteurs Bas Carbone](https://www.ifpeb.fr/travaux/le-hub-des-prescripteurs-bas-carbone/).
+
+</div>
 
 Carte interactive des 8 villes de France métropolitaine représentant les 8 zones de la RE2020, avec une comparaison de différents indicateurs de chaleur d'été (nuits chaudes, heures > 28 °C, degrés-heures et, à la demande, six autres) pour trois horizons :
 
 - **2003** : fichier météo Th-D « canicule » de la RE2020 ;
 - **2026** : été observé aux stations ;
 - **2050** : scénarios TRACC +2,7 °C (moyen, et avec vague de chaleur).
-
-**Voir la carte : [https://alliages.github.io/carte_france_2003_2026_2050/](https://alliages.github.io/carte_france_2003_2026_2050/)**
-
-Réalisée avec l'aide du [Hub des Prescripteurs Bas Carbone](https://www.ifpeb.fr/travaux/le-hub-des-prescripteurs-bas-carbone/).
-
-Version actuelle : **1.1.0**
-
-![Vue d'ensemble : carte des 8 zones, panneau de comparaison et tableau](docs/apercu-ensemble.png)
 
 ![Détail d'une station (Tours, heures > 28 °C) avec les écarts à 2003](docs/apercu-detail.png)
 
